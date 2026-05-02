@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="gradient-glow" aria-hidden="true"></div>
+  <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
+  <div class="particles-layer" id="particlesLayer" aria-hidden="true"></div>
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+  <div class="balloon-layer" id="balloonLayer" aria-hidden="true"></div>
+  <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
+
+  <button class="sound-toggle" id="soundToggle" type="button" aria-label="Mute birthday music" aria-pressed="false">
+    <span class="sound-icon" aria-hidden="true">♪</span>
+  </button>
+
+  <main class="app-shell">
+    <section class="landing screen is-visible" id="landingScreen" aria-labelledby="landingTitle">
+      <p class="eyebrow">A tiny surprise</p>
+      <h1 id="landingTitle">Hey <span id="friendName">Lovely</span> <span aria-hidden="true">💖</span></h1>
+      <p class="subtext">Something special is waiting...</p>
+      <button class="primary-button" id="startButton" type="button">Start Birthday <span aria-hidden="true">🎉</span></button>
+    </section>
+
+    <section class="celebration screen" id="celebrationScreen" aria-live="polite">
+      <div class="cake-stage" id="cakeStage">
+        <p class="celebration-kicker">Make a wish</p>
+        <div class="cake" aria-label="Birthday cake with glowing candles" role="img">
+          <div class="candles">
+            <span class="candle"><i></i></span>
+            <span class="candle"><i></i></span>
+            <span class="candle"><i></i></span>
+          </div>
+          <div class="cake-top">
+            <span class="sprinkle sprinkle-one"></span>
+            <span class="sprinkle sprinkle-two"></span>
+            <span class="sprinkle sprinkle-three"></span>
+            <span class="sprinkle sprinkle-four"></span>
+          </div>
+          <div class="icing"></div>
+          <div class="cake-body"></div>
+          <div class="cake-plate"></div>
+        </div>
+      </div>
+
+      <div class="message-card" id="messageCard">
+        <p class="message-label">Happy Birthday</p>
+        <h2 id="birthdayTitle">To the sweetest soul</h2>
+        <p class="typed-message" id="typedMessage"></p>
+        <button class="secondary-button" id="replayButton" type="button">Replay celebration</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
