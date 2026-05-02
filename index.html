@@ -16,16 +16,32 @@
   <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
   <div class="balloon-layer" id="balloonLayer" aria-hidden="true"></div>
   <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
+  <div class="fade-overlay" id="fadeOverlay" aria-hidden="true"></div>
 
   <button class="sound-toggle" id="soundToggle" type="button" aria-label="Mute birthday music" aria-pressed="false">
     <span class="sound-icon" aria-hidden="true">♪</span>
   </button>
 
   <main class="app-shell">
-    <section class="landing screen is-visible" id="landingScreen" aria-labelledby="landingTitle">
+    <section class="name-screen screen is-visible" id="nameScreen" aria-labelledby="nameTitle">
+      <form class="name-card" id="nameForm" novalidate>
+        <p class="eyebrow">Before we begin</p>
+        <h1 id="nameTitle">Who is this for?</h1>
+        <label class="sr-only" for="nameInput">Recipient name</label>
+        <input class="name-input" id="nameInput" name="recipientName" type="text" placeholder="Enter name..." autocomplete="off" maxlength="28">
+        <p class="validation-message" id="nameError" aria-live="polite"></p>
+        <button class="primary-button" type="submit">Continue <span aria-hidden="true">💖</span></button>
+      </form>
+    </section>
+
+    <section class="landing screen" id="landingScreen" aria-labelledby="landingTitle">
       <p class="eyebrow">A tiny surprise</p>
       <h1 id="landingTitle">Hey <span id="friendName">Lovely</span> <span aria-hidden="true">💖</span></h1>
       <p class="subtext">Something special is waiting...</p>
+      <p class="countdown-text">
+        Celebration begins in
+        <span id="countdownTimer">00:00:00</span>
+      </p>
       <button class="primary-button" id="startButton" type="button">Start Birthday <span aria-hidden="true">🎉</span></button>
     </section>
 
@@ -52,9 +68,17 @@
 
       <div class="message-card" id="messageCard">
         <p class="message-label">Happy Birthday</p>
-        <h2 id="birthdayTitle">To the sweetest soul</h2>
+        <h2 id="birthdayTitle">To a beautiful soul</h2>
         <p class="typed-message" id="typedMessage"></p>
-        <button class="secondary-button" id="replayButton" type="button">Replay celebration</button>
+        <div class="ending-ui" id="endingFlow">
+          <p class="ending-quote" id="endingQuote">Hope this made you smile 💖</p>
+          <div class="ending-question" id="endingQuestion">
+            <p>You are happy na? 😊</p>
+            <button class="secondary-button" id="yesButton" type="button">Yes 💖</button>
+          </div>
+          <p class="ending-response" id="endingResponse">That made it all worth it 💫</p>
+        </div>
+        <button class="secondary-button is-hidden" id="replayButton" type="button">Replay celebration</button>
       </div>
     </section>
   </main>
