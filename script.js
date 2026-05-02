@@ -7,8 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nameError = document.getElementById("nameError");
   const landingScreen = document.getElementById("landingScreen");
   const celebrationScreen = document.getElementById("celebrationScreen");
-  const startButton = document.getElementById("startButton");
-  const replayButton = document.getElementById("replayButton");
   const soundToggle = document.getElementById("soundToggle");
   const soundPrompt = document.getElementById("soundPrompt");
   const enableSoundBtn = document.getElementById("enableSoundBtn");
@@ -66,8 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
       handleNameSubmit(event);
     }
   });
-  startButton.addEventListener("click", () => startCelebration(true));
-  replayButton.addEventListener("click", () => startCelebration(true));
   yesButton.addEventListener("click", handleHappyResponse);
   enableSoundBtn.addEventListener("click", handleEnableSound);
   soundToggle.addEventListener("click", toggleSound);
@@ -93,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       birthdayMonth = sessionMonth;
       birthdayDay = sessionDay;
       setDisplayName(name);
-      showScreen(landingScreen);
+      routeBirthdayExperience();
       return;
     }
   
@@ -128,8 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     birthdayDay = day;
     triggeredBirthdayKey = "";
     setDisplayName(name);
-    showScreen(landingScreen);
-    updateCountdown();
+    routeBirthdayExperience();
   }
 
   function setDisplayName(name) {
@@ -178,6 +173,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return [4, 6, 9, 11].includes(month) ? 30 : 31;
+  }
+
+  function routeBirthdayExperience() {
+    if (isBirthdayToday(birthdayMonth, birthdayDay) || isBirthdayPassed(birthdayMonth, birthdayDay)) {
+      triggeredBirthdayKey = getBirthdayKey(new Date().getFullYear(), birthdayMonth, birthdayDay);
+      startCelebration(false);
+      return;
+    }
+
+    showScreen(landingScreen);
+    updateCountdown();
   }
 
   function startCelebration(allowSound) {
@@ -433,23 +439,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function getNextBirthday(month, day) {
+  function getBirthdayTarget(month, day) {
     const now = new Date();
     const currentYear = now.getFullYear();
     const targetDay = normalizeBirthdayDay(currentYear, month, day);
-    let target = new Date(currentYear, month - 1, targetDay, 0, 0, 0, 0);
-    const isBirthdayToday = now.getMonth() === month - 1 && now.getDate() === targetDay;
 
-    if (isBirthdayToday && now >= target) {
-      return now;
+    return new Date(currentYear, month - 1, targetDay, 0, 0, 0, 0);
+  }
+
+  function isBirthdayToday(month, day) {
+    if (!isValidBirthdayDate(month, day)) {
+      return false;
     }
 
-    if (now > target) {
-      const nextYear = currentYear + 1;
-      target = new Date(nextYear, month - 1, normalizeBirthdayDay(nextYear, month, day), 0, 0, 0, 0);
+    const now = new Date();
+    const targetDay = normalizeBirthdayDay(now.getFullYear(), month, day);
+
+    return now.getMonth() === month - 1 && now.getDate() === targetDay;
+  }
+
+  function isBirthdayPassed(month, day) {
+    if (!isValidBirthdayDate(month, day) || isBirthdayToday(month, day)) {
+      return false;
     }
 
-    return target;
+    return new Date() > getBirthdayTarget(month, day);
+  }
+
+  function getBirthdayKey(year, month, day) {
+    return `${year}-${month}-${normalizeBirthdayDay(year, month, day)}`;
   }
 
   function normalizeBirthdayDay(year, month, day) {
@@ -475,12 +493,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const now = new Date();
-    const target = getNextBirthday(birthdayMonth, birthdayDay);
+    const target = getBirthdayTarget(birthdayMonth, birthdayDay);
     const diff = target - now;
 
     if (diff <= 0) {
       countdownEl.textContent = "00:00:00";
-      const birthdayKey = `${target.getFullYear()}-${birthdayMonth}-${birthdayDay}`;
+      const birthdayKey = getBirthdayKey(target.getFullYear(), birthdayMonth, birthdayDay);
 
       if (!celebrationRunning && triggeredBirthdayKey !== birthdayKey) {
         triggeredBirthdayKey = birthdayKey;
