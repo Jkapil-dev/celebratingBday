@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const nameScreen = document.getElementById("nameScreen");
   const nameForm = document.getElementById("nameForm");
   const nameInput = document.getElementById("nameInput");
+  const monthSelect = document.getElementById("monthSelect");
+  const daySelect = document.getElementById("daySelect");
   const nameError = document.getElementById("nameError");
   const landingScreen = document.getElementById("landingScreen");
   const celebrationScreen = document.getElementById("celebrationScreen");
@@ -35,6 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let endingTimer;
   let resetTimer;
   let displayName = "birthday star";
+  let birthdayMonth = 0;
+  let birthdayDay = 0;
+  let triggeredBirthdayKey = "";
   let isMuted = false;
   let celebrationRunning = false;
 
@@ -46,6 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   nameForm.addEventListener("submit", handleNameSubmit);
   nameInput.addEventListener("input", () => {
+    nameError.textContent = "";
+  });
+  monthSelect.addEventListener("change", () => {
+    nameError.textContent = "";
+  });
+  daySelect.addEventListener("change", () => {
     nameError.textContent = "";
   });
   nameInput.addEventListener("keydown", (event) => {
@@ -62,11 +73,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const urlName = cleanName(params.get("name"));
     const sessionName = cleanName(sessionStorage.getItem("birthdayName"));
-  
+    const sessionMonth = Number(sessionStorage.getItem("birthdayMonth"));
+    const sessionDay = Number(sessionStorage.getItem("birthdayDay"));
     const name = urlName || sessionName;
-  
-    if (name) {
+
+    if (sessionMonth) {
+      monthSelect.value = String(sessionMonth);
+    }
+
+    if (sessionDay) {
+      daySelect.value = String(sessionDay);
+    }
+
+    if (name && isValidBirthdayDate(sessionMonth, sessionDay)) {
       sessionStorage.setItem("birthdayName", name);
+      birthdayMonth = sessionMonth;
+      birthdayDay = sessionDay;
       setDisplayName(name);
       showScreen(landingScreen);
       return;
@@ -80,17 +102,31 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleNameSubmit(event) {
     event.preventDefault();
     const name = cleanName(nameInput.value);
+    const month = Number(monthSelect.value);
+    const day = Number(daySelect.value);
   
     if (!name) {
       nameError.textContent = "Please enter a name to continue.";
       nameInput.focus();
       return;
     }
+
+    if (!isValidBirthdayDate(month, day)) {
+      nameError.textContent = "Please select a valid date";
+      (month ? daySelect : monthSelect).focus();
+      return;
+    }
   
     nameError.textContent = "";
     sessionStorage.setItem("birthdayName", name);
+    sessionStorage.setItem("birthdayMonth", String(month));
+    sessionStorage.setItem("birthdayDay", String(day));
+    birthdayMonth = month;
+    birthdayDay = day;
+    triggeredBirthdayKey = "";
     setDisplayName(name);
     showScreen(landingScreen);
+    updateCountdown();
   }
 
   function setDisplayName(name) {
@@ -119,6 +155,26 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 28);
+  }
+
+  function isValidBirthdayDate(month, day) {
+    if (!Number.isInteger(month) || !Number.isInteger(day)) {
+      return false;
+    }
+
+    if (month < 1 || month > 12 || day < 1) {
+      return false;
+    }
+
+    return day <= getMaxBirthdayDay(month);
+  }
+
+  function getMaxBirthdayDay(month) {
+    if (month === 2) {
+      return 29;
+    }
+
+    return [4, 6, 9, 11].includes(month) ? 30 : 31;
   }
 
   function startCelebration(allowSound) {
@@ -274,6 +330,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function resetToNewSession() {
     sessionStorage.removeItem("birthdayName");
+    sessionStorage.removeItem("birthdayMonth");
+    sessionStorage.removeItem("birthdayDay");
     localStorage.removeItem("birthdayName");
     window.clearTimeout(musicTimer);
     window.clearTimeout(typingTimer);
@@ -284,6 +342,11 @@ document.addEventListener("DOMContentLoaded", () => {
     friendName.textContent = "Lovely";
     birthdayTitle.textContent = "To a beautiful soul";
     nameInput.value = "";
+    monthSelect.value = "";
+    daySelect.value = "";
+    birthdayMonth = 0;
+    birthdayDay = 0;
+    triggeredBirthdayKey = "";
     nameError.textContent = "";
     typedMessage.textContent = "";
     typedMessage.classList.remove("is-done");
@@ -346,10 +409,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function getNextMidnight() {
-    const midnight = new Date();
-    midnight.setHours(24, 0, 0, 0);
-    return midnight;
+  function getNextBirthday(month, day) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const targetDay = normalizeBirthdayDay(currentYear, month, day);
+    let target = new Date(currentYear, month - 1, targetDay, 0, 0, 0, 0);
+    const isBirthdayToday = now.getMonth() === month - 1 && now.getDate() === targetDay;
+
+    if (isBirthdayToday && now >= target) {
+      return now;
+    }
+
+    if (now > target) {
+      const nextYear = currentYear + 1;
+      target = new Date(nextYear, month - 1, normalizeBirthdayDay(nextYear, month, day), 0, 0, 0, 0);
+    }
+
+    return target;
+  }
+
+  function normalizeBirthdayDay(year, month, day) {
+    if (month === 2 && day === 29 && !isLeapYear(year)) {
+      return 28;
+    }
+
+    return day;
+  }
+
+  function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
   }
 
   function updateCountdown() {
@@ -357,15 +445,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!isValidBirthdayDate(birthdayMonth, birthdayDay)) {
+      countdownEl.textContent = "00:00:00";
+      return;
+    }
+
     const now = new Date();
-    const target = getNextMidnight();
+    const target = getNextBirthday(birthdayMonth, birthdayDay);
     const diff = target - now;
 
     if (diff <= 0) {
       countdownEl.textContent = "00:00:00";
+      const birthdayKey = `${target.getFullYear()}-${birthdayMonth}-${birthdayDay}`;
 
-      if (!celebrationRunning) {
-        window.setTimeout(() => startCelebration(true), 800);
+      if (!celebrationRunning && triggeredBirthdayKey !== birthdayKey) {
+        triggeredBirthdayKey = birthdayKey;
+        landingScreen.classList.add("is-fading");
+        window.setTimeout(() => {
+          landingScreen.classList.remove("is-fading");
+          startCelebration(false);
+        }, 800);
       }
       return;
     }
@@ -374,7 +473,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, "0");
     const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
 
-    countdownEl.textContent = `${hours}:${minutes}:${seconds}`;
+    countdownEl.textContent = `${hours} : ${minutes} : ${seconds}`;
   }
 
   function toggleSound() {
