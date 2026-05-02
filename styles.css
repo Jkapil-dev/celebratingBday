@@ -85,6 +85,56 @@ button {
   opacity: 1;
 }
 
+.sound-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  background: rgba(78, 41, 58, 0.34);
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(8px);
+  transition: opacity 520ms ease-in-out, visibility 520ms ease-in-out;
+}
+
+.sound-prompt.hidden {
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.sound-card {
+  display: grid;
+  width: min(88vw, 360px);
+  justify-items: center;
+  padding: clamp(1.5rem, 6vw, 2.25rem);
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 24px;
+  text-align: center;
+  background: rgba(255, 240, 246, 0.94);
+  box-shadow: 0 28px 70px rgba(92, 49, 70, 0.2);
+  transform: translateY(0) scale(1);
+  transition: transform 520ms ease-in-out;
+}
+
+.sound-prompt.hidden .sound-card {
+  transform: translateY(10px) scale(0.96);
+}
+
+.sound-card p {
+  margin: 0 0 1.2rem;
+  color: #8b4d68;
+  font-size: clamp(1.08rem, 4vw, 1.32rem);
+  font-weight: 700;
+}
+
+.sound-prompt-button {
+  animation: soundButtonPulse 1.8s ease-in-out infinite;
+}
+
 .app-shell {
   position: relative;
   z-index: 2;
@@ -784,6 +834,17 @@ h2 {
   100% {
     box-shadow: var(--shadow);
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes soundButtonPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.035);
   }
 }
 

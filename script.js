@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("startButton");
   const replayButton = document.getElementById("replayButton");
   const soundToggle = document.getElementById("soundToggle");
+  const soundPrompt = document.getElementById("soundPrompt");
+  const enableSoundBtn = document.getElementById("enableSoundBtn");
   const friendName = document.getElementById("friendName");
   const birthdayTitle = document.getElementById("birthdayTitle");
   const cakeStage = document.getElementById("cakeStage");
@@ -67,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startButton.addEventListener("click", () => startCelebration(true));
   replayButton.addEventListener("click", () => startCelebration(true));
   yesButton.addEventListener("click", handleHappyResponse);
+  enableSoundBtn.addEventListener("click", handleEnableSound);
   soundToggle.addEventListener("click", toggleSound);
 
   function initializeNameFlow() {
@@ -203,6 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (allowSound && !isMuted) {
       startMusic();
+    } else if (!allowSound && !isMuted) {
+      showSoundPrompt();
     }
   }
 
@@ -215,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearLayer(sparkleLayer);
     cakeStage.classList.remove("is-active");
     messageCard.classList.remove("is-active");
+    hideSoundPrompt();
     typedMessage.textContent = "";
     typedMessage.classList.remove("is-done");
     resetEndingFlow();
@@ -357,6 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearLayer(sparkleLayer);
     cakeStage.classList.remove("is-active");
     messageCard.classList.remove("is-active");
+    hideSoundPrompt();
     showScreen(nameScreen);
     nameScreen.classList.add("is-restarting");
 
@@ -378,6 +385,23 @@ document.addEventListener("DOMContentLoaded", () => {
     endingQuote.classList.remove("is-visible");
     endingQuestion.classList.remove("is-visible", "is-fading", "is-hidden");
     endingResponse.classList.remove("is-visible");
+  }
+
+  function showSoundPrompt() {
+    soundPrompt.classList.remove("hidden");
+    window.setTimeout(() => enableSoundBtn.focus(), 250);
+  }
+
+  function hideSoundPrompt() {
+    soundPrompt.classList.add("hidden");
+  }
+
+  function handleEnableSound() {
+    if (!isMuted) {
+      startMusic();
+    }
+
+    hideSoundPrompt();
   }
 
   function createAmbientHearts() {
@@ -488,6 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!isMuted && celebrationScreen.classList.contains("is-visible")) {
       startMusic();
+      hideSoundPrompt();
     }
   }
 
